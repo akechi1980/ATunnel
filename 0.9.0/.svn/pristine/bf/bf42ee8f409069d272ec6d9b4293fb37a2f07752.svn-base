@@ -1,0 +1,30 @@
+{
+    //............Host And Ports Setting............
+    //LocalServer Setting
+    "LocalServer_ListenHost": "0.0.0.0",
+    "LocalServer_ListenPort": 2204,
+    //RemoteServer Setting
+    "RemoteServer_Address": "192.168.0.19",
+    "RemoteServer_ListenHost": "0.0.0.0",
+    "RemoteServer_ListenPort": 8882,
+    //RemoteServer App Setting
+    "TargetServerHost": "0.0.0.0",
+    "TargetServerPort": 18889,
+    
+    //............Custom Socket Frameset Format............
+    //FrameSetMode
+    // 1 : 2byte DataLen + Data;
+    // TODO 2 : IV  + Data;
+    // TODO 3 ++
+    "FrameSetMode": "1",            // 2byte DataLen + Data
+    "ChkHeadLenth": 16,
+    "ChkHeadInfo": "==!!Fuck GFW!!==",
+    "PlusChkHeadLenth": 16,
+    "PlusChkHeadInfo": "EXlNLKJm7w3ublOx",
+
+    //-----------------------------
+    "FrameDataCrypMethod": "1",
+    "FrameDataCrypPass": "1",
+    "FrameDataGzip": false
+  }
+  

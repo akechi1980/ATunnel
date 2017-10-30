@@ -1,0 +1,81 @@
+"use strict";
+exports.__esModule = true;
+var Utils = require("../utils/Utils");
+var SettingConfig = require("../utils/Config");
+var Mode1Package = (function () {
+    function Mode1Package() {
+        this.ReadCacheBuffer = new Buffer([]);
+        this.PackageHead = this.mkPackageHead();
+        this.PackageDataChkHead = this.mkPackageDataChkHead();
+    }
+    Mode1Package.prototype.mkPackageHead = function () {
+        var PackageHead = Buffer.allocUnsafe(SettingConfig.SettingConfig.PackageHeadLength).fill([0]);
+        for (var i = 0; i < SettingConfig.SettingConfig.PackageHeadFormat.length; i++) {
+            if (SettingConfig.SettingConfig.PackageHeadFormat[i].type == 'String') {
+                PackageHead.write(SettingConfig.SettingConfig.PackageHeadFormat[i].contents, SettingConfig.SettingConfig.PackageHeadFormat[i].startPos, SettingConfig.SettingConfig.PackageHeadFormat[i].length);
+            }
+            else if (SettingConfig.SettingConfig.PackageHeadFormat[i].type == 'PackageSize') {
+                PackageHead.writeInt32BE(0, SettingConfig.SettingConfig.PackageHeadFormat[i].startPos, SettingConfig.SettingConfig.PackageHeadFormat[i].length);
+            }
+            else if (SettingConfig.SettingConfig.PackageHeadFormat[i].type == 'PackageSizeLE') {
+                PackageHead.writeInt32LE(0, SettingConfig.SettingConfig.PackageHeadFormat[i].startPos, SettingConfig.SettingConfig.PackageHeadFormat[i].length);
+            }
+            else if (SettingConfig.SettingConfig.PackageHeadFormat[i].type == 'Num') {
+                PackageHead.writeFloatBE(SettingConfig.SettingConfig.PackageHeadFormat[i].contents, SettingConfig.SettingConfig.PackageHeadFormat[i].startPos, SettingConfig.SettingConfig.PackageHeadFormat[i].length);
+            }
+        }
+        return PackageHead;
+    };
+    Mode1Package.prototype.mkPackageDataChkHead = function () {
+        var PackageDataChkHead = Buffer.allocUnsafe(SettingConfig.SettingConfig.PackageDataChkHeadLength).fill([0]);
+        for (var i = 0; i < SettingConfig.SettingConfig.PackageDataChkHeadFormat.length; i++) {
+            if (SettingConfig.SettingConfig.PackageDataChkHeadFormat[i].type == 'ChkString') {
+                PackageDataChkHead.write(SettingConfig.SettingConfig.PackageDataChkHeadFormat[i].contents, SettingConfig.SettingConfig.PackageDataChkHeadFormat[i].startPos, SettingConfig.SettingConfig.PackageDataChkHeadFormat[i].length);
+            }
+            else if (SettingConfig.SettingConfig.PackageDataChkHeadFormat[i].type == 'ChkHash') {
+                var tmp = Utils.TunnelUtils.CreateHash(SettingConfig.SettingConfig.PackageDataChkHeadFormat[i].contents);
+                (new Buffer(tmp.toString(), 'Hex')).copy(PackageDataChkHead, SettingConfig.SettingConfig.PackageDataChkHeadFormat[i].startPos, 0, (new Buffer(tmp.toString(), 'Hex')).length);
+            }
+        }
+        return PackageDataChkHead;
+    };
+    Mode1Package.prototype.chkPackageHead = function () {
+        var headBuffer = Buffer.allocUnsafe(32);
+        return false;
+    };
+    Mode1Package.prototype.formatData = function (inRealData) {
+        var PackageDataBuffer = Buffer.concat([this.PackageDataChkHead, inRealData]);
+        if (SettingConfig.SettingConfig.PackageDataEncode.type != '') {
+            PackageDataBuffer = Utils.TunnelUtils.encode(PackageDataBuffer, SettingConfig.SettingConfig.PackageDataEncode.type, SettingConfig.SettingConfig.PackageDataEncode.password);
+        }
+        var PackageDataBuffer = Buffer.concat([this.PackageHead, PackageDataBuffer]);
+        return PackageDataBuffer;
+    };
+    Mode1Package.prototype.put = function (inBuffer) {
+        this.ReadCacheBuffer = Buffer.concat([this.ReadCacheBuffer, inBuffer]);
+        if (this.ReadCacheBuffer.length >= 9) {
+            var data = this.ReadCacheBuffer.slice(0, 9);
+            this.ReadCacheBuffer = this.ReadCacheBuffer.slice(9);
+            this.onRealDataReceivedHandler(data);
+        }
+    };
+    return Mode1Package;
+}());
+exports.Mode1Package = Mode1Package;
+var mMode1Package = new Mode1Package();
+mMode1Package.onRealDataReceivedHandler = function (data) {
+    console.log('>> receive data:' + data.toString('hex'));
+};
+mMode1Package.put(mMode1Package.formatData(new Buffer([
+    1, 2, 3, 5, 6, 7, 1, 2, 3, 5, 6, 7, 2, 3, 5, 6, 7, 1, 2, 3, 5, 6, 7, 2, 3, 5, 6, 7, 1, 2, 3, 5, 6, 7, 2, 3, 5, 6, 7, 1, 2, 3, 5, 6, 7, 2, 3, 5, 6,
+    7, 1, 2, 3, 5, 6, 7, 2, 3, 5, 6, 7, 1, 2, 3, 5, 6, 7, 2, 3, 5, 6, 7, 1, 2, 3, 5, 6, 7, 2, 3, 5, 6, 7, 1, 2, 3, 5, 6, 7, 2, 3, 5, 6, 7, 1, 2, 3, 5,
+    6, 7, 2, 3, 5, 6, 7, 1, 2, 3, 5, 6, 7, 2, 3, 5, 6, 7, 1, 2, 3, 5, 6, 7
+])));
+mMode1Package.put(mMode1Package.formatData(new Buffer([8, 9])));
+mMode1Package.put(mMode1Package.formatData(new Buffer([0, 3, 1, 2, 3, 0, 6, 1, 2, 3, 4, 5, 6])));
+mMode1Package.put(mMode1Package.formatData(new Buffer([1, 2, 3, 4, 5, 6, 7])));
+mMode1Package.put(mMode1Package.formatData(new Buffer([8, 9])));
+mMode1Package.put(mMode1Package.formatData(new Buffer([0, 3, 1, 2, 3, 0, 6, 1, 2, 3, 4, 5, 6])));
+console.log('>> Formatted PackageHead:' + mMode1Package.mkPackageHead().toString('Hex'));
+console.log('>> Formatted PackageDataChkHead:' + mMode1Package.mkPackageDataChkHead().toString('Hex'));
+//# sourceMappingURL=Mode1Package.js.map

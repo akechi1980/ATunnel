@@ -1,0 +1,7 @@
+/**
+ * PackageFormat Interface.
+ */
+export interface FrameSetFormat {
+    
+
+}

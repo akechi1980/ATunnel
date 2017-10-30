@@ -1,0 +1,27 @@
+{
+    "LocalServer_ListenHost": "0.0.0.0",
+    "LocalServer_ListenPort": 8000,
+
+    "RemoteServer_Address": "192.3.253.147",
+    "RemoteServer_ListenHost": "0.0.0.0",
+    "RemoteServer_ListenPort": 4002,
+
+    "TargetServerHost": "192.3.253.147",
+    "TargetServerPort": 18989,
+    
+
+    "PackageHeadFormat" :[
+      {"startPos": 0,"length": 2,"type": "String","contents": "CN"},
+      {"startPos": 2,"length": 4,"type": "PackageSize","contents": ""},     
+      {"startPos": 6,"length": 2,"type": "String","contents": "NY"}        
+    ],
+
+    "PackageDataChkHeadFormat" :[
+      {"startPos": 0,"length": 8,"type": "ChkString","contents": "Atunnel"},
+      {"startPos": 8,"length": 8,"type": "ChkString","contents": "Atunnel"},
+      {"startPos": 16,"length": 8,"type": "ChkString","contents": "Atunnel"}],
+    
+    "PackageDataEncode" :{"type": "aes192","password": "124578369"}
+
+  }
+  
