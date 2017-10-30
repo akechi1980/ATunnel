@@ -61,9 +61,7 @@
          | CN  | PackageSize | NY  | ChkStr1 | ChkStr2 | ChkStr3 | RealData |
          |2byte|    4byte    |2byte|  8byte  |  8byte  |  8byte  |     XX   |
          +-----+-------------+-----+---------+---------+---------+----------+
-	 the contents of PackageDataChkHeadFormat and RealData will be encoded by PackageDataEncode.
-	 
-	 You can not only chanage the string or size or crypt method, but also can easyly define your own package format by just alter the SettingConfig.
+	 The contents of PackageDataChkHeadFormat and RealData will be crypt by the method and password your define in SettingConfig 's PackageDataEncode. You can not only chanage the string ,frameset size or crypt method, but also can easyly define your own package format by just alter the SettingConfig.
 	 
          +-------------+--------+---------+
          | PackageSize |ChkStr1 |RealData |
