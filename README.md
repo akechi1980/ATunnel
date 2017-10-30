@@ -6,9 +6,22 @@
 		
 **How To Use**
 		
+	At first , you need nodejs env.
+		On Linux yum install Nodejs (more info https://nodejs.org/en/download/package-manager/)
+		On Windows install the Nodejs.msi (which your can finde on https://nodejs.org/)
+	Then
+		download the Atunnel ,and save to some place your like.
+		On Server
+			node built/RemoteServer.js
+		On Local
+			node built/LocalServer.js
+	
+	you can start it use forever command.
+		forever start built/RemoteServer.js
+		forever start built/LocalServer.js
 	
 
-**Example**
+**SettingConfig**
 	
 	
 
