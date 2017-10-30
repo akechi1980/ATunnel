@@ -53,9 +53,27 @@
 	  
 	  Use PackageHeadFormat,PackageDataChkHeadFormat,PackageDataEncode to Define your own Package Format...
 	  
-	  
+	 in SettingConfig's case, the Package Format will be like this
+         +-----+-------------+-----+---------+---------+---------+----------+
+         | CN  | PackageSize | NY  | ChkStr1 | ChkStr2 | ChkStr3 | RealData |
+         |2byte|    4byte    |2byte|  8byte  |  8byte  |  8byte  |     XX   |
+         +-----+-------------+-----+---------+---------+---------+----------+
+	 the contents of PackageDataChkHeadFormat and RealData will be encoded by PackageDataEncode.
+	 
+	 You can not only chanage the string or size or crypt method, but also can easyly define your own package format by just alter the SettingConfig.
+	 
+         +-------------+--------+---------+
+         | PackageSize |ChkStr1 |RealData |
+         |    4byte    | 8byte  |    XX   |	   
+         +-------------+--------+---------+
+	OR
+	 +-------------+---------+
+         | PackageDiff |RealData |
+         |    >16byte  |    XX   |		 
+         +-------------+---------+
+	Will alse work...
 	
-	
+
 >**Attations:** 
 	You are free to use these code, if you may，just let me know。
 	any help or advice will be appreciated
