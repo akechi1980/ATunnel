@@ -29,14 +29,14 @@
 
 	{
 	    "LocalServer_ListenHost": "0.0.0.0",	//LocalServer Listen IP, 0.0.0.0 = every ip this pc have	
-	    "LocalServer_ListenPort": 8000,		//LocalServer Listen port	
+	    "LocalServer_ListenPort": 8000,		//LocalServer Listen port ,whatever..
 
 	    "RemoteServer_Address": "192.168.8.32",	//RemoteServer IP Address
 	    "RemoteServer_ListenHost": "0.0.0.0",	//RemoteServer  Listen IP
-	    "RemoteServer_ListenPort": 4002,		//RemoteServer Listen port
+	    "RemoteServer_ListenPort": 4002,		//RemoteServer Listen port ,whatever..
 
-	    "TargetServerHost": "192.168.8.127",	// Which Server you wanna go to...
-	    "TargetServerPort": 22,			// Port, RDP 3389 ,SSH 22, something else you like
+	    "TargetServerHost": "192.168.8.127",	// Which Server you wanna connect...
+	    "TargetServerPort": 22,			// Port, RDP 3389 ,SSH 22, whatever you want to connect
 
 
 	    "PackageHeadFormat" :[
@@ -54,14 +54,14 @@
 
 	  }
 	  
-	  Use PackageHeadFormat,PackageDataChkHeadFormat,PackageDataEncode to Define your own Package Format...
+	  Use PackageHeadFormat,PackageDataChkHeadFormat,PackageDataEncode to define your own Package Format...
 	  
 	 in SettingConfig's case, the Package Format will be like this
          +-----+-------------+-----+---------+---------+---------+----------+
          | CN  | PackageSize | NY  | ChkStr1 | ChkStr2 | ChkStr3 | RealData |
          |2byte|    4byte    |2byte|  8byte  |  8byte  |  8byte  |     XX   |
          +-----+-------------+-----+---------+---------+---------+----------+
-	 The contents of PackageDataChkHeadFormat and RealData will be crypt by the method and password your define in SettingConfig 's PackageDataEncode. You can not only chanage the string ,frameset size or crypt method, but also can easyly define your own package format by just alter the SettingConfig.
+	 The contents of PackageDataChkHeadFormat and RealData will be crypt by the method and password your define in SettingConfig 's PackageDataEncode. You can, not only chanage the string ,frameset size or crypt method, but also can easyly change your own package format itself by just alter the SettingConfig.
 	 
          +-------------+--------+---------+
          | PackageSize |ChkStr1 |RealData |
