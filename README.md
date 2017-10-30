@@ -8,10 +8,13 @@
 **How To Use**
 		
 	At first , you need nodejs env.
-		On Linux yum install Nodejs (more info https://nodejs.org/en/download/package-manager/)
-		On Windows install the Nodejs.msi (which your can finde on https://nodejs.org/)
+		On Linux 
+			yum install Nodejs (more info https://nodejs.org/en/download/package-manager/)
+		On Windows 
+			install the Nodejs.msi (which your can finde on https://nodejs.org/)
 	Then
 		download the Atunnel ,and save to some place your like.
+		
 		On Server
 			node built/RemoteServer.js
 		On Local
