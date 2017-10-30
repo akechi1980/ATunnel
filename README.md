@@ -2,7 +2,8 @@
 
 **Introduction**
 	
-	ATunnel is a simple tool,  Which can easy to define your own Socket Package Format .
+	ATunnel is a simple port proxy tool,  Which you can easy to define your own Socket Package Format. 
+	if you can't access your appserver directly , try this...
 		
 **How To Use**
 		
@@ -22,10 +23,39 @@
 	
 
 **SettingConfig**
-	
-	
+
+	{
+	    "LocalServer_ListenHost": "0.0.0.0",	//LocalServer Listen IP, 0.0.0.0 = every ip this pc have	
+	    "LocalServer_ListenPort": 8000,		//LocalServer Listen port	
+
+	    "RemoteServer_Address": "192.168.8.32",	//RemoteServer IP Address
+	    "RemoteServer_ListenHost": "0.0.0.0",	//RemoteServer  Listen IP
+	    "RemoteServer_ListenPort": 4002,		//RemoteServer Listen port
+
+	    "TargetServerHost": "192.168.8.127",	// Which Server you wanna go to...
+	    "TargetServerPort": 22,			// Port, RDP 3389 ,SSH 22, something else you like
 
 
+	    "PackageHeadFormat" :[
+	      {"startPos": 0,"length": 2,"type": "String","contents": "CN"},
+	      {"startPos": 2,"length": 4,"type": "PackageSize","contents": ""},     
+	      {"startPos": 6,"length": 2,"type": "String","contents": "NY"}        
+	    ],
+
+	    "PackageDataChkHeadFormat" :[
+	      {"startPos": 0,"length": 8,"type": "ChkString","contents": "Atunnel"},
+	      {"startPos": 8,"length": 8,"type": "ChkString","contents": "Atunnel"},
+	      {"startPos": 16,"length": 8,"type": "ChkString","contents": "Atunnel"}],
+
+	    "PackageDataEncode" :{"type": "aes192","password": "124578369"}
+
+	  }
+	  
+	  Use PackageHeadFormat,PackageDataChkHeadFormat,PackageDataEncode to Define your own Package Format...
+	  
+	  
+	
+	
 >**Attations:** 
 	You are free to use these code, if you may，just let me know。
 	any help or advice will be appreciated
