@@ -1,0 +1,129 @@
+package com.szming;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import com.szming.Framesets.CustomPackage;
+import com.szming.Framesets.EventHandler;
+
+public class RemoteServer {
+	
+	public static final int LISTEN_PORT = 8080;
+
+	public void listenRequest() {
+		
+		ServerSocket serverSocket = null;
+		ExecutorService threadExecutor = Executors.newCachedThreadPool();
+		try {
+			serverSocket = new ServerSocket(LISTEN_PORT);
+			System.out.println("Server listening requests...");
+			while (true) {
+				Socket socket = serverSocket.accept();
+				threadExecutor.execute(new RequestThread(socket));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (threadExecutor != null)
+				threadExecutor.shutdown();
+			if (serverSocket != null)
+				try {
+					serverSocket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+	}
+
+	/**
+	 * RemoteServer 起動　 
+	 */
+	public static void main(String[] args) {
+		RemoteServer server = new RemoteServer();
+		server.listenRequest();
+	}
+
+	
+	
+	/**
+	 * 處理Client端的Request執行續。
+	 *
+	 * @version
+	 */
+	class RequestThread implements Runnable , EventHandler{
+		private Socket clientSocket;
+		private CustomPackage mCustomPackage;
+		public RequestThread(Socket clientSocket) {
+			this.mCustomPackage = new CustomPackage();
+			this.clientSocket = clientSocket;
+		}
+
+		@Override
+		public void run() {
+			System.out.printf("有%s連線進來!\n", clientSocket.getRemoteSocketAddress());
+			DataInputStream input = null;
+			
+
+			try {
+				
+				input = new DataInputStream(this.clientSocket.getInputStream());
+
+				while (true) {
+					
+					  byte[] bytes = new byte[8*1024]; 
+					  
+					  input.read(bytes);
+					  
+					  this.mCustomPackage.put(bytes);
+					  
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (input != null)
+						input.close();
+					if (this.clientSocket != null && !this.clientSocket.isClosed())
+						this.clientSocket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		@Override
+		public void onRealDataReceivedHandler(byte[] data) {
+			// TODO Auto-generated method stub
+			DataOutputStream output = null;
+			System.out.println("onRealDataReceivedHandler");
+			try {
+				output = new DataOutputStream(this.clientSocket.getOutputStream());
+				output.write(data);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				try {
+					if (output != null)
+						output.close();
+					if (this.clientSocket != null && !this.clientSocket.isClosed())
+						this.clientSocket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		@Override
+		public void onErrorHandler(String msg) {
+			// TODO Auto-generated method stub
+			System.out.println("onRealDataReceivedHandler");
+		}
+
+	}
+}

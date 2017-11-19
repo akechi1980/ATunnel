@@ -1,0 +1,143 @@
+package com.szming.Framesets;
+
+import java.nio.charset.Charset;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.util.Arrays;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.szming.utils.Config;
+import com.szming.utils.TunnelUtils;
+import com.szming.utils.JsonParser.PackageDataChkHeadFormat;
+import com.szming.utils.JsonParser.PackageHeadFormat;
+
+public class CustomPackage{
+	
+	EventHandler iEventHandler;
+	//メモリに保存されている情報リスト
+	byte[] ReadCacheBuffer;
+	
+	byte[] PackageHead;
+	byte[] PackageDataChkHead;
+
+    String PackageDiffMode = "PackageDiff";   //PackageSize,PackageSizeLE
+    int PackageSizeStarPos = 0;
+    int PackageOffset = 0;
+	
+
+	
+    public byte[] mkPackageHead(){
+    	
+    	byte[] PackageHead = new byte[Config.mSettingConfig.PackageHeadLength()];    	
+    	Arrays.fill(PackageHead,(byte)0);
+    	
+        for (int i = 0;i<Config.mSettingConfig.PackageHeadFormat.length;i++){
+        	PackageHeadFormat itemObj = (PackageHeadFormat) Config.mSettingConfig.PackageHeadFormat[i];
+    		
+            if(itemObj.type.equals("String")){
+            	
+            	byte[] byteArray = itemObj.contents.getBytes(Charset.forName("utf8"));
+            	System.arraycopy(byteArray, 0, PackageHead, itemObj.startPos, (byteArray.length < itemObj.length ? byteArray.length:itemObj.length)); 
+
+            	
+            }else if(itemObj.type.equals("PackageSize")){
+                this.PackageDiffMode = "PackageSize";   
+                this.PackageSizeStarPos =  itemObj.startPos;
+                
+            }else if(itemObj.type.equals("PackageSizeLE")){
+                this.PackageDiffMode = "PackageSizeLE"; 
+                this.PackageSizeStarPos =  itemObj.startPos;
+            }else if(itemObj.type.equals("Num")){
+//                PackageHead.writeFloatBE(Config.PackageHeadFormat[i].contents,
+//                    Config.PackageHeadFormat[i].startPos,
+//                    Config.PackageHeadFormat[i].length);
+            }
+
+        }
+
+        return PackageHead;
+    }
+
+    public byte[] mkPackageDataChkHead(){
+    	byte[] PackageDataChkHead = new byte[Config.mSettingConfig.PackageDataChkHeadLength()];    	
+    	Arrays.fill(PackageDataChkHead,(byte)0);
+
+    	for (int i = 0;i<Config.mSettingConfig.PackageDataChkHeadFormat.length;i++){
+    		
+    		PackageDataChkHeadFormat itemObj = (PackageDataChkHeadFormat) Config.mSettingConfig.PackageDataChkHeadFormat[i];
+    		
+            if(itemObj.type.equals("ChkString")){
+            	
+            	byte[] byteArray = itemObj.contents.getBytes(Charset.forName("utf8"));
+            	System.arraycopy(byteArray, 0, PackageDataChkHead, itemObj.startPos, (byteArray.length < itemObj.length ? byteArray.length:itemObj.length)); 
+            	
+            }else if(itemObj.type.equals("ChkHash")){
+//                var tmp = TunnelUtils.CreateHash(Config.PackageDataChkHeadFormat[i].contents);
+//                (new Buffer(tmp.toString(), "Hex")).copy(PackageDataChkHead, Config.PackageDataChkHeadFormat[i].startPos, 0, (new Buffer(tmp.toString(), "Hex")).length);
+            }
+        }
+        return PackageDataChkHead;
+    }
+    
+    
+    
+	
+	public void put(byte[] data,boolean isDriect){
+		System.out.println("CustomPackage put " + data.length);
+		if(isDriect){
+			//Format判断処理要らない、そのまま出す
+			if (data.length > 0) {
+				iEventHandler.onRealDataReceivedHandler(data);
+			}
+		}else {
+			//Format判断処理必要、
+			
+			
+		}
+
+	}
+	
+	
+	
+	public byte[] formatData(byte[] data){
+		System.out.println("CustomPackage formatData");
+		return data;
+
+	}
+	
+	public void setHandler(EventHandler iEventHandler){
+		this.iEventHandler = iEventHandler;
+
+	}
+	
+	
+
+	// TEST
+	public static void main(String[] args) throws Exception{
+		Config mConfig = new Config();
+		mConfig.init("C:\\Works\\Source\\ATunnelJava\\SettingConfig.json");
+		CustomPackage mCustomPackage = new CustomPackage();
+		
+		System.out.println(TunnelUtils.bytes2HexString(mCustomPackage.mkPackageHead()));
+		System.out.println(TunnelUtils.bytes2HexString(mCustomPackage.mkPackageDataChkHead()));
+		
+		System.out.println(TunnelUtils.bytes2HexString(TunnelUtils.CreateHash("123456")));
+		System.out.println("<Buffer c2 37 da ea 5c 04 63 e8 aa 08 62 8e b5 8c 67 28>");
+
+		
+		System.out.println(TunnelUtils.bytes2HexString(TunnelUtils.encrypt("JustTest","123")));
+
+	}
+	
+
+
+}

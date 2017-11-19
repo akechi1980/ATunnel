@@ -1,0 +1,191 @@
+package com.szming.utils;
+
+import java.security.MessageDigest;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import com.szming.Framesets.CustomPackage;
+
+public class TestCrypter {
+	
+	public static String bytes2HexString(byte[] b) {
+		String ret = "";
+		for (int i = 0; i < b.length; i++) {
+			String hex = Integer.toHexString(b[i] & 0xFF);
+			if (hex.length() == 1) {
+				hex = '0' + hex;
+			}
+			ret += hex.toUpperCase();
+			ret += ' ';
+		}
+		return ret;
+	}
+	
+
+     
+	public static String ALGORITHM = "AES";
+	private static String AES_CBS_PADDING = "AES/ECB/PKCS5Padding";
+
+	public static byte[] encrypt(final byte[] key, final byte[] IV, final byte[] message) throws Exception {
+		return TestCrypter.encryptDecrypt(Cipher.ENCRYPT_MODE, key,  message);
+	}
+
+	public static byte[] decrypt(final byte[] key, final byte[] IV, final byte[] message) throws Exception {
+		return TestCrypter.encryptDecrypt(Cipher.DECRYPT_MODE, key,  message);
+	}
+
+	private static byte[] encryptDecrypt(final int mode, final byte[] key,  final byte[] message)
+			throws Exception {
+		
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		byte[] thedigest = md.digest(key);
+		SecretKeySpec skc = new SecretKeySpec(thedigest, "AES");
+		Cipher cipher = Cipher.getInstance(AES_CBS_PADDING);
+		cipher.init(Cipher.ENCRYPT_MODE, skc);
+		
+
+		return cipher.doFinal(message);
+	}
+	
+
+    
+    
+//	JustTest
+//	<Buffer 4a 75 73 74 54 65 73 74>
+//	aes-128-cbc aes-128-cbc-hmac-sha1 aes-128-cbc-hmac-sha256 aes128
+//	<Buffer 2b 6f 66 be 1a a2 aa ec e1 b3 15 c1 74 9e 13 10>
+//	aes-128-ccm
+//	<Buffer 2d f5 f1 11 20 e5 88 7a>
+//	aes-128-cfb aes-128-cfb1
+//	<Buffer 40 84 a3 4d 2a 02 0e 2b>
+//	aes-128-cfb8
+//	<Buffer 40 52 6d a9 13 94 c2 79>
+//	camellia-128-cbc
+//	<Buffer af 82 a1 4e 3a a7 ce bb 42 f5 02 52 b1 3a a1 3f>
+//	seed-ofb
+//	<Buffer 0f b6 0b c9 c0 a8 96 c6>
+//	idea
+//	<Buffer 31 1a b6 23 39 7e 99 17 ee de 32 cf 9f a7 ca 5d>
+//	rc2
+//	<Buffer 67 1b 08 f5 ed 3b 1a b7 53 ea 3c a7 02 10 3f 29>
+//	rc4
+//	<Buffer bd 7b d8 86 49 a9 27 59>
+//	des3
+//	<Buffer f1 09 fe 57 26 f6 ff 94 4b 8d 66 ed 33 84 91 02>
+//	blowfish
+//	<Buffer 8f 4e 40 d4 5e fb 4d 11 e9 11 0b 23 c7 14 6d bd>
+    
+	// TEST
+	public static void main(String[] args) throws Exception{
+		String tContent = "JustTest";
+		byte[] buff = tContent.getBytes("utf8");
+		byte[] bufvi = new byte[] {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		
+		System.out.println(bytes2HexString(buff));
+		System.out.println(bytes2HexString(bufvi));
+		
+
+		System.out.println(bytes2HexString(TestCrypter.encrypt("1234567890123456".getBytes(),bufvi,buff)));
+		
+	
+	
+	}
+    
+}
+
+
+
+//static IV = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+//                         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+// //............encode............
+// /**
+// * aes 128 cbc加密 PKCS5Padding填充
+// * @param data 原始数据
+// * @param key 密钥 设备AccessCode前16个字符
+// * @returns 密文Buffer
+// */
+// public static aes_128_ecb_encrypt(data, key){
+//     var encipher = crypto.createCipher('aes-128-ecb', Buffer.from(key, 'utf8'));
+//     var crypted = encipher.update(data, 'utf8', 'binary');
+//     crypted += encipher.final('binary');
+//     return Buffer.from(crypted, 'binary');
+// }
+// 
+//public static String ALGORITHM = "AES";
+//private static String AES_CBS_PADDING = "AES/ECB/PKCS5Padding";
+//
+//public static byte[] encrypt(final byte[] key, final byte[] IV, final byte[] message) throws Exception {
+//	return TestCrypter.encryptDecrypt(Cipher.ENCRYPT_MODE, key,  message);
+//}
+//
+//public static byte[] decrypt(final byte[] key, final byte[] IV, final byte[] message) throws Exception {
+//	return TestCrypter.encryptDecrypt(Cipher.DECRYPT_MODE, key,  message);
+//}
+//
+//private static byte[] encryptDecrypt(final int mode, final byte[] key,  final byte[] message)
+//		throws Exception {
+//	
+//	MessageDigest md = MessageDigest.getInstance("MD5");
+//	byte[] thedigest = md.digest(key);
+//	SecretKeySpec skc = new SecretKeySpec(thedigest, "AES");
+//	Cipher cipher = Cipher.getInstance(AES_CBS_PADDING);
+//	cipher.init(Cipher.ENCRYPT_MODE, skc);
+//	
+//
+//	return cipher.doFinal(message);
+//}
+
+//NODEJS	
+//CBC need IV ECB not
+//static IV = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+//                       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+////............encode............
+///**
+//* aes 128 cbc加密 PKCS5Padding填充
+//* @param data 原始数据
+//* @param key 密钥 设备AccessCode前16个字符
+//* @returns 密文Buffer
+//*/
+//public static aes_128_cbc_encrypt(data, key){
+//   var encipher = crypto.createCipheriv('aes-128-cbc', Buffer.from(key, 'utf8'), this.IV);
+//   var crypted = encipher.update(data, 'utf8', 'binary');
+//   crypted += encipher.final('binary');
+//   return Buffer.from(crypted, 'binary');
+//}
+//
+///**
+//* aes 128 cbc解密，返回解密后的字符串
+//* @param crypted 密文
+//* @param key 密钥 设备AccessCode前16个字符
+//* @returns 明文
+//*/
+//public static aes_128_cbc_decrypt(crypted, key){
+//   var buf = new Buffer(crypted, 'hex');
+//   var decipher = crypto.createDecipheriv('aes-128-cbc', Buffer.from(key, 'utf8'), this.IV);
+//   var decoded = decipher.update(buf, 'binary', 'utf8');
+//   decoded += decipher.final('utf8');
+//   return decoded;
+//}
+//JAVA
+//public static String ALGORITHM = "AES";
+//private static String AES_CBS_PADDING = "AES/CBC/PKCS5Padding";
+//
+//public static byte[] encrypt(final byte[] key, final byte[] IV, final byte[] message) throws Exception {
+//	return TestCrypter.encryptDecrypt(Cipher.ENCRYPT_MODE, key, IV, message);
+//}
+//
+//public static byte[] decrypt(final byte[] key, final byte[] IV, final byte[] message) throws Exception {
+//	return TestCrypter.encryptDecrypt(Cipher.DECRYPT_MODE, key, IV, message);
+//}
+//
+//private static byte[] encryptDecrypt(final int mode, final byte[] key, final byte[] IV, final byte[] message)
+//		throws Exception {
+//  
+//	final Cipher cipher = Cipher.getInstance(AES_CBS_PADDING);
+//	final SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);
+//	final IvParameterSpec ivSpec = new IvParameterSpec(IV);
+//	cipher.init(mode, keySpec, ivSpec);
+//	return cipher.doFinal(message);
+//}

@@ -1,0 +1,26 @@
+package com.szming.Framesets;
+
+public class CustomPackage{
+	EventHandler iEventHandler;
+	
+	public void put(byte[] data){
+		System.out.println("CustomPackage put " + data.length);
+		if (data.length > 0) {
+			iEventHandler.onRealDataReceivedHandler(data);
+		}
+
+
+	}
+
+	
+	public byte[] formatData(byte[] data){
+		System.out.println("CustomPackage formatData");
+		return data;
+
+	}
+	
+	public void setHandler(EventHandler iEventHandler){
+		this.iEventHandler = iEventHandler;
+
+	}
+}

@@ -1,0 +1,50 @@
+package com.szming.utils;
+
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
+
+public class Config {
+
+	public static String version = "0.9.0";
+
+	// ............Host And Ports Setting............
+	// LocalServer Setting
+	public static String LocalServer_ListenHost = "0.0.0.0";
+	public static int LocalServer_ListenPort = 2204;
+
+	// RemoteServer Setting
+	public static String RemoteServer_Address = "172.104.113.168";
+	public static String RemoteServer_ListenHost = "0.0.0.0";
+	public static int RemoteServer_ListenPort = 8882;
+
+	// RemoteServer App Setting
+	public static String TargetServerHost = "<TargetServerHost>";
+	public static int TargetServerPort = 22;
+
+	// ............Custom Socket Frameset Format............
+	public static JsonArray PackageHeadFormat;
+	public static int PackageHeadLength = 0;
+	public static JsonArray PackageDataChkHeadFormat;
+	public static int PackageDataChkHeadLength = 0;
+	public static JsonObject PackageDataEncode;
+
+	// ............Other Setting............
+	public static boolean isDebug = false;
+	
+	
+	public void init(String filename) {
+		Gson gson = new Gson();
+		try {
+			JsonReader reader = new JsonReader(new FileReader(filename));
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}

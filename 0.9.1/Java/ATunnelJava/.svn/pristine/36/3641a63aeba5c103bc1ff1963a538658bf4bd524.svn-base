@@ -1,0 +1,103 @@
+package com.szming.Framesets;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
+import com.google.gson.JsonObject;
+import com.szming.utils.Config;
+
+public class CustomPackage{
+	
+	EventHandler iEventHandler;
+	//メモリに保存されている情報リスト
+	byte[] ReadCacheBuffer;
+	byte[] PackageHead;
+	byte[] PackageDataChkHead;
+
+    String PackageDiffMode = "PackageDiff";   //PackageSize,PackageSizeLE
+    int PackageSizeStarPos = 0;
+    int PackageOffset = 0;
+	
+
+	
+    public byte[] mkPackageHead(){
+    	
+    	byte[] PackageHead = new byte[Config.PackageHeadLength];    	
+    	Arrays.fill(PackageHead,(byte)0);
+    	
+        for (int i = 0;i<Config.PackageHeadFormat.size();i++){
+    		JsonObject itemObj = (JsonObject) Config.PackageHeadFormat.get(i);
+    		
+            if(itemObj.get("type").getAsString().equals("String")){
+//                PackageHead.write(Config.PackageHeadFormat[i].contents,
+//                    Config.PackageHeadFormat[i].startPos,
+//                    Config.PackageHeadFormat[i].length);
+            }else if(itemObj.get("type").getAsString().equals("PackageSize")){
+                this.PackageDiffMode = "PackageSize";   
+                this.PackageSizeStarPos =  itemObj.get("startPos").getAsInt();
+            }else if(itemObj.get("type").getAsString().equals("PackageSizeLE")){
+                this.PackageDiffMode = "PackageSizeLE"; 
+                this.PackageSizeStarPos =  itemObj.get("startPos").getAsInt();
+            }else if(itemObj.get("type").getAsString().equals("Num")){
+//                PackageHead.writeFloatBE(Config.PackageHeadFormat[i].contents,
+//                    Config.PackageHeadFormat[i].startPos,
+//                    Config.PackageHeadFormat[i].length);
+            }
+
+        }
+
+        return PackageHead;
+    }
+
+    public byte[] mkPackageDataChkHead(){
+    	byte[] PackageDataChkHead = new byte[Config.PackageDataChkHeadLength];    	
+    	Arrays.fill(PackageDataChkHead,(byte)0);
+
+    	for (int i = 0;i<Config.PackageDataChkHeadFormat.size();i++){
+    		JsonObject itemObj = (JsonObject) Config.PackageDataChkHeadFormat.get(i);
+    		
+            if(itemObj.get("type").equals("ChkString")){
+//            	
+//                PackageDataChkHead.write(Config.PackageDataChkHeadFormat[i].contents,
+//                    Config.PackageDataChkHeadFormat[i].startPos,
+//                    Config.PackageDataChkHeadFormat[i].length);
+                
+            }else if(itemObj.get("type").equals("ChkHash")){
+//                var tmp = TunnelUtils.CreateHash(Config.PackageDataChkHeadFormat[i].contents);
+//                (new Buffer(tmp.toString(), "Hex")).copy(PackageDataChkHead, Config.PackageDataChkHeadFormat[i].startPos, 0, (new Buffer(tmp.toString(), "Hex")).length);
+            }
+        }
+        return PackageDataChkHead;
+    }
+    
+    
+    
+	
+	public void put(byte[] data,boolean isDriect){
+		System.out.println("CustomPackage put " + data.length);
+		if(isDriect){
+			//Format判断処理要らない、そのまま出す
+			if (data.length > 0) {
+				iEventHandler.onRealDataReceivedHandler(data);
+			}
+		}else {
+			//Format判断処理必要、
+			
+			
+		}
+
+	}
+	
+	
+	
+	public byte[] formatData(byte[] data){
+		System.out.println("CustomPackage formatData");
+		return data;
+
+	}
+	
+	public void setHandler(EventHandler iEventHandler){
+		this.iEventHandler = iEventHandler;
+
+	}
+}

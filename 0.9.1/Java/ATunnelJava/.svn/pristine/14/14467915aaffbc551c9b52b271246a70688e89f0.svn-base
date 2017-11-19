@@ -1,0 +1,369 @@
+package com.szming.utils;
+
+import java.io.UnsupportedEncodingException;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.Security;
+import java.util.Arrays;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+public class TunnelUtils {
+
+	public static String bytes2HexString(byte[] b) {
+		String ret = "";
+		for (int i = 0; i < b.length; i++) {
+			String hex = Integer.toHexString(b[i] & 0xFF);
+			if (hex.length() == 1) {
+				hex = '0' + hex;
+			}
+			ret += hex.toUpperCase();
+		}
+		return ret;
+	}
+
+
+	
+	public static byte[] CreateHash(String message) {
+		byte[] key = null;
+		try {
+			key = (message).getBytes("UTF-8");
+			MessageDigest sha = MessageDigest.getInstance("SHA-256");
+			key = sha.digest(key);
+//			System.out.println(Utils.bytes2HexString(key));
+			key = Arrays.copyOf(key, 16); // use only first 128 bit
+//			System.out.println(Utils.bytes2HexString(key));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return key;
+	}
+	
+	
+    //............encode............
+    public static byte[] encode(byte[] inbuf,String method,String pass) {
+    	byte[] result = null;
+        try{
+
+        }catch(Exception e){
+        	e.printStackTrace();
+        }
+    
+        return result;
+    }
+    
+    //............encode............
+    public static byte[] decode(byte[] inbuf,String method,String pass) {
+    	byte[] result = null;
+        try{
+
+        }catch(Exception e){
+        	e.printStackTrace();
+        }
+    
+        return result;
+    }
+    
+    
+	/**
+	 * AES加密字符串
+	 * 
+	 * @param content
+	 *            需要被加密的字符串
+	 * @param password
+	 *            加密需要的密码
+	 * @return 密文
+	 */
+	public static byte[] encrypt(String content, String password) {
+		try {
+
+			// KeyGenerator kgen = KeyGenerator.getInstance("AES");// 创建AES的Key生产者
+			//
+			// //kgen.init(192);
+			// //kgen.init(192, new SecureRandom(password.getBytes()));//
+			// 利用用户密码作为随机数初始化出128位的key生产者
+			//
+			// //加密没关系，SecureRandom是生成安全随机数序列，password.getBytes()是种子，只要种子相同，序列就一样，所以解密只要有password就行
+			//
+			// SecretKey secretKey = kgen.generateKey();// 根据用户密码，生成一个密钥
+			//
+			// byte[] enCodeFormat = secretKey.getEncoded();// 返回基本编码格式的密钥，如果此密钥不支持编码，则返回
+			// // null。
+			//
+			// SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");// 转换为AES专用密钥
+			//
+			// Cipher cipher = Cipher.getInstance("AES");// 创建密码器
+			//
+			// byte[] byteContent = content.getBytes("utf-8");
+			//
+			// cipher.init(Cipher.ENCRYPT_MODE, key);// 初始化为加密模式的密码器
+			//
+			// byte[] result = cipher.doFinal(byteContent);// 加密
+			byte[] keyb = password.getBytes("utf-8");  
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			byte[] thedigest = md.digest(keyb);
+			
+			//byte[] thedigest = (password.getBytes("utf-8"));			
+//	    	byte[] key = new byte[24];    	
+//	    	Arrays.fill(key,(byte)255);
+//	    	System.arraycopy(thedigest, 0, key, 0, 3); 
+			
+			SecretKeySpec skc = new SecretKeySpec(thedigest, "AES");
+
+	    	
+			Cipher cipher = Cipher.getInstance("AES");
+			cipher.init(Cipher.ENCRYPT_MODE, skc);// 初始化16空字节
+
+			byte[] encrypted = cipher.doFinal(content.getBytes("utf-8"));
+			return encrypted;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	
+	 public static byte[] encrypt2(String content, String password) {
+		  try {
+		   KeyGenerator kgen = KeyGenerator.getInstance("AES");
+		   
+			MessageDigest md = MessageDigest.getInstance("MD5");
+			byte[] thedigest = md.digest(password.getBytes("ASCII"));
+			
+		   kgen.init(192, new SecureRandom(thedigest));
+		   SecretKey secretKey = kgen.generateKey();
+		   byte[] enCodeFormat = secretKey.getEncoded();
+		   SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");
+		   // 创建密码器
+		   Cipher cipher = Cipher.getInstance("AES");
+		   byte[] byteContent = content.getBytes("utf-8");
+		   // 初始化
+		   cipher.init(Cipher.ENCRYPT_MODE, key);
+		   byte[] result = cipher.doFinal(byteContent);
+		   return result; // 加密
+		  } catch (Exception e) {
+		   e.printStackTrace();
+		  }
+		  return null;
+		 }
+	 
+	 public static byte[] encrypt3(String message,String pass) throws Exception {
+		    byte[] keyBytes = pass.getBytes();
+		    
+	
+	    	byte[] key = new byte[24];    	
+	    	Arrays.fill(key,(byte)0);
+	    	System.arraycopy(keyBytes, 0, key, 0, 3); 
+		    
+		    Key key2 = new SecretKeySpec(keyBytes, "AES");
+		    Cipher c = Cipher.getInstance("AES");
+		    c.init(Cipher.ENCRYPT_MODE, key2);
+		    return c.doFinal(message.getBytes());
+	 }
+	
+//	'aes-128-cbc',
+//	  'aes-128-cbc-hmac-sha1',
+//	  'aes-128-cbc-hmac-sha256',
+//	  'aes-128-ccm',
+//	  'aes-128-cfb',
+//	  'aes-128-cfb1',
+//	  'aes-128-cfb8',
+//	  'aes-128-ctr',
+//	  'aes-128-ecb',
+//	  'aes-128-gcm',
+//	  'aes-128-ofb',
+//	  'aes-128-xts',
+//	  'aes-192-cbc',
+//	  'aes-192-ccm',
+//	  'aes-192-cfb',
+//	  'aes-192-cfb1',
+//	  'aes-192-cfb8',
+//	  'aes-192-ctr',
+//	  'aes-192-ecb',
+//	  'aes-192-gcm',
+//	  'aes-192-ofb',
+//	  'aes-256-cbc',
+//	  'aes-256-cbc-hmac-sha1',
+//	  'aes-256-cbc-hmac-sha256',
+//	  'aes-256-ccm',
+//	  'aes-256-cfb',
+//	  'aes-256-cfb1',
+//	  'aes-256-cfb8',
+//	  'aes-256-ctr',
+//	  'aes-256-ecb',
+//	  'aes-256-gcm',
+//	  'aes-256-ofb',
+//	  'aes-256-xts',
+//	  'aes128',
+//	  'aes192',
+//	  'aes256',
+//	  'bf',
+//	  'bf-cbc',
+//	  'bf-cfb',
+//	  'bf-ecb',
+//	  'bf-ofb',
+//	  'blowfish',
+//	  'camellia-128-cbc',
+//	  'camellia-128-cfb',
+//	  'camellia-128-cfb1',
+//	  'camellia-128-cfb8',
+//	  'camellia-128-ecb',
+//	  'camellia-128-ofb',
+//	  'camellia-192-cbc',
+//	  'camellia-192-cfb',
+//	  'camellia-192-cfb1',
+//	  'camellia-192-cfb8',
+//	  'camellia-192-ecb',
+//	  'camellia-192-ofb',
+//	  'camellia-256-cbc',
+//	  'camellia-256-cfb',
+//	  'camellia-256-cfb1',
+//	  'camellia-256-cfb8',
+//	  'camellia-256-ecb',
+//	  'camellia-256-ofb',
+//	  'camellia128',
+//	  'camellia192',
+//	  'camellia256',
+//	  'cast',
+//	  'cast-cbc',
+//	  'cast5-cbc',
+//	  'cast5-cfb',
+//	  'cast5-ecb',
+//	  'cast5-ofb',
+//	  'des',
+//	  'des-cbc',
+//	  'des-cfb',
+//	  'des-cfb1',
+//	  'des-cfb8',
+//	  'des-ecb',
+//	  'des-ede',
+//	  'des-ede-cbc',
+//	  'des-ede-cfb',
+//	  'des-ede-ofb',
+//	  'des-ede3' ]
+//	[ 'des-ede3-cbc',
+//	  'des-ede3-cfb',
+//	  'des-ede3-cfb1',
+//	  'des-ede3-cfb8',
+//	  'des-ede3-ofb',
+//	  'des-ofb',
+//	  'des3',
+//	  'desx',
+//	  'desx-cbc',
+//	  'id-aes128-CCM',
+//	  'id-aes128-GCM',
+//	  'id-aes128-wrap',
+//	  'id-aes192-CCM',
+//	  'id-aes192-GCM',
+//	  'id-aes192-wrap',
+//	  'id-aes256-CCM',
+//	  'id-aes256-GCM',
+//	  'id-aes256-wrap',
+//	  'id-smime-alg-CMS3DESwrap',
+//	  'idea',
+//	  'idea-cbc',
+//	  'idea-cfb',
+//	  'idea-ecb',
+//	  'idea-ofb',
+//	  'rc2',
+//	  'rc2-40-cbc',
+//	  'rc2-64-cbc',
+//	  'rc2-cbc',
+//	  'rc2-cfb',
+//	  'rc2-ecb',
+//	  'rc2-ofb',
+//	  'rc4',
+//	  'rc4-40',
+//	  'rc4-hmac-md5',
+//	  'seed',
+//	  'seed-cbc',
+//	  'seed-cfb',
+//	  'seed-ecb',
+//	  'seed-ofb' ]
+//	
+//    /**
+//     * Encrypts data.
+//     * @param plainText
+//     *   Data to encrypt.
+//     * @return
+//     *   Encrypted data.
+//     * @throws Exception
+//     *   If something went wrong.
+//     */
+//    public static byte[] encrypt(String plainText){
+//    	Cipher cipher;
+//    	cipher = Cipher.getInstance("PBEWithMD5AndDES");
+//    	String secretKey = "123456789";
+//    	
+//        byte[] encrypted = new byte[plainText.getBytes().length];
+//        
+//        cipher.init(Cipher.ENCRYPT_MODE, secretKey, this.paramSpec);
+//        encrypted = cipher.doFinal(plainText.getBytes());
+//        return encrypted;
+//    }
+//    
+//    
+//    /**
+//     * Decrypts data.
+//     * @param cipherText
+//     *   Data to decrypt.
+//     * @return
+//     *   Decrypted data.
+//     * @throws Exception
+//     *   If something went wrong.
+//     */
+//    public static String decrypt(byte[] cipherText) throws Exception {
+//    	
+//    	Cipher cipher;
+//    	cipher = Cipher.getInstance("PBEWithMD5AndDES");
+//    	String secretKey = "123456789";
+//    	
+//        byte[] decryptedText = new byte[cipherText.length];
+//        String decrypted;
+//        
+//        cipher.init(Cipher.DECRYPT_MODE, secretKey, this.paramSpec);
+//        decryptedText = cipher.doFinal(cipherText);
+//        decrypted = new String(decryptedText);
+//        return decrypted;
+//    }
+//    
+}
+
+
+//node built/utils/TestCrypter.js
+//JustTestBufs001
+//<Buffer 4a 75 73 74 54 65 73 74 42 75 66 73 30 30 31>
+//aes-128-cbc aes-128-cbc-hmac-sha1 aes-128-cbc-hmac-sha256 aes128
+//<Buffer 71 df 52 06 33 40 5a fc 6c bb 17 c0 54 62 a3 24>
+//aes-128-ccm
+//<Buffer 2d f5 f1 11 20 e5 88 7a 21 a6 9d 52 ea 5a 25>
+//aes-128-cfb aes-128-cfb1
+//<Buffer 40 84 a3 4d 2a 02 0e 2b 2c 2a 6f dc d9 62 a6>
+//aes-128-cfb8
+//<Buffer 40 52 6d a9 13 94 c2 79 d0 13 f1 4a 91 b1 bf>
+//camellia-128-cbc
+//<Buffer b9 cc b0 90 b6 f6 6b 79 9d fd cd fe d0 3e b8 2d>
+//seed-ofb
+//<Buffer 0f b6 0b c9 c0 a8 96 c6 45 14 4f e0 96 36 12>
+//idea
+//<Buffer 31 1a b6 23 39 7e 99 17 80 c2 13 e3 9b 8e 1a 56>
+//rc2
+//<Buffer 67 1b 08 f5 ed 3b 1a b7 5a 31 65 e7 dd 26 a1 bf>
+//rc4
+//<Buffer bd 7b d8 86 49 a9 27 59 47 7e fe 27 25 1a 65>
+//des3
+//<Buffer f1 09 fe 57 26 f6 ff 94 e7 b1 e0 91 92 07 c7 c0>
+//blowfish
+//<Buffer 8f 4e 40 d4 5e fb 4d 11 50 6a 7c 3b 68 6f 59 9a>

@@ -1,0 +1,76 @@
+package com.szming;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+import com.szming.Framesets.CustomPackage;
+import com.szming.Framesets.EventHandler;
+
+public class SocketStreamProc implements Runnable {
+	protected Socket mSocket;
+	protected DataInputStream input;
+	private DataOutputStream output;
+
+	private CustomPackage mCustomPackage;
+
+	public SocketStreamProc(Socket inSocket) throws UnknownHostException, IOException {
+		this.mSocket = inSocket;
+		this.input = new DataInputStream(inSocket.getInputStream());
+		this.output = new DataOutputStream(inSocket.getOutputStream());
+		mCustomPackage = new CustomPackage();
+	}
+
+	public void setHandler(EventHandler iEventHandler) {
+		this.mCustomPackage.setHandler(iEventHandler);
+
+	}
+
+	public void run() {
+		while (true) {
+			try {
+				int count = 0;
+				while (count == 0) {
+					count = input.available();
+					Thread.sleep(1);
+				}
+				byte[] bytes = new byte[count];
+	
+
+				input.readFully(bytes);
+				
+
+				mCustomPackage.put(bytes);
+				
+				Thread.sleep(1);
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			// byte[] bytes = new byte[8 * 1024]; // make this whatever you need
+			// try {
+			//
+			// this.input.read(bytes);
+			// } catch (IOException e1) {
+			// // TODO Auto-generated catch block
+			// e1.printStackTrace();
+			// }
+
+
+		}
+
+	}
+
+	public void write(byte[] inbytes) throws IOException {
+		byte[] bytes = mCustomPackage.formatData(inbytes);
+		this.output.write(bytes);
+	}
+
+}
