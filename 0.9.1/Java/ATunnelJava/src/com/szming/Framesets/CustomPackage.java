@@ -23,16 +23,13 @@ public class CustomPackage {
 	int PackageSizeStarPos = 0;
 	int PackageOffset = 0;
 
-	
-
 	public CustomPackage() {
-        this.ReadCacheBuffer = new byte[0];
-        // WithDataSize Crypt
-        this.PackageHead= this.mkPackageHead();
-        this.PackageDataChkHead= this.mkPackageDataChkHead();
-    }
-    
-    
+		this.ReadCacheBuffer = new byte[0];
+		// WithDataSize Crypt
+		this.PackageHead = this.mkPackageHead();
+		this.PackageDataChkHead = this.mkPackageDataChkHead();
+	}
+
 	public byte[] mkPackageHead() {
 
 		byte[] PackageHead = new byte[Config.mSettingConfig.PackageHeadLength()];
@@ -103,46 +100,63 @@ public class CustomPackage {
 			int pos = 0;
 			this.ReadCacheBuffer = concat(this.ReadCacheBuffer, data);
 			// Check Conditions
+			int Count = 0;
 			do {
-				 try {
-					 
-					 if(this.ReadCacheBuffer.length < this.PackageHead.length + this.PackageDataChkHead.length) break;
+				// try {
+				System.out.println("CustomPackage put " + Count + " times!");
+				Count += 1;
+				if(Count > 100){
+					break;
 					
-					 pos = this.getNextPackageOffset();
-					 
-					 if(pos > 0){
-						
-						 //処理対象Packageを取得する
-						 byte[]  data1 = subBytes(this.ReadCacheBuffer,0,pos);
-						 //その他の情報をそのまま維持する
-						 this.ReadCacheBuffer = subBytes(this.ReadCacheBuffer,pos,this.ReadCacheBuffer.length - data1.length);
-						 //Headをカットする。
-						 data1 = subBytes(data1,this.PackageHead.length,data1.length - this.PackageHead.length);
-						 
-						 if(!Config.mSettingConfig.PackageDataEncode.type.equals("")){
-							 //暗号化ある場合
-							 data1 = TunnelUtils.decode(data1, Config.mSettingConfig.PackageDataEncode.type, Config.mSettingConfig.PackageDataEncode.password);
-						 }
-						 
-						 //PackageDataChkHead Check
-						 if (bytesIndexOf(data1,this.PackageDataChkHead) > 0)
-							 //PackageDataChkHeadをカットする。
-							 data1 = subBytes(data1,this.PackageDataChkHead.length,data1.length - this.PackageDataChkHead.length);
-						 
-						 else{
-							 iEventHandler.onErrorHandler("PackageDataChkHead Check Error!");
-							 break;
-						 }
-						 
-						 iEventHandler.onRealDataReceivedHandler(data1);
-						 
-					 }else{
-						 break;
-					 }
-				 } catch (Exception ex) {
-					 ex.printStackTrace();
-					 break;
-				 }
+				}
+				if (this.ReadCacheBuffer.length < this.PackageHead.length + this.PackageDataChkHead.length)
+					break;
+
+				pos = this.getNextPackageOffset();
+
+				if (pos > 0) {
+
+					// 処理対象Packageを取得する
+					byte[] data1 = subBytes(this.ReadCacheBuffer, 0, pos);
+					// その他の情報をそのまま維持する
+					this.ReadCacheBuffer = subBytes(this.ReadCacheBuffer, pos,
+							this.ReadCacheBuffer.length - data1.length);
+					// Headをカットする。
+					data1 = subBytes(data1, this.PackageHead.length, data1.length - this.PackageHead.length);
+
+					if (!Config.mSettingConfig.PackageDataEncode.type.equals("")) {
+						// 暗号化ある場合
+						data1 = TunnelUtils.decode(data1, Config.mSettingConfig.PackageDataEncode.type,
+								Config.mSettingConfig.PackageDataEncode.password);
+					}
+
+					// PackageDataChkHead Check
+					if (bytesIndexOf(data1, this.PackageDataChkHead) > 0)
+						// PackageDataChkHeadをカットする。
+						data1 = subBytes(data1, this.PackageDataChkHead.length,
+								data1.length - this.PackageDataChkHead.length);
+
+					else {
+						iEventHandler.onErrorHandler("PackageDataChkHead Check Error!");
+						break;
+					}
+
+					iEventHandler.onRealDataReceivedHandler(data1);
+
+				} else {
+					break;
+				}
+				// } catch (IOException ex) {
+				// iEventHandler.onErrorHandler("PackageDataChkHead Check Error!");
+				// //ex.printStackTrace();
+				// break;
+				// }
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			} while (true);
 		}
 
@@ -163,7 +177,7 @@ public class CustomPackage {
 				posResult = -1;
 			}
 		} else if (this.PackageDiffMode.equals("PackageDiff")) {
-			posResult = (int) bytesIndexOf(this.ReadCacheBuffer,this.PackageHead);
+			posResult = (int) bytesIndexOf(this.ReadCacheBuffer, this.PackageHead);
 			if (posResult < 1) {
 				posResult = -1;
 			}
@@ -173,43 +187,39 @@ public class CustomPackage {
 
 	public byte[] formatData(byte[] inRealData) {
 		System.out.println("CustomPackage formatData");
-		
-		byte[] PackageDataBuffer = concat(this.PackageDataChkHead,inRealData);
-        if(!Config.mSettingConfig.PackageDataEncode.type.equals("")){
-        	
-            PackageDataBuffer = TunnelUtils.encode(PackageDataBuffer,
-            		Config.mSettingConfig.PackageDataEncode.type, Config.mSettingConfig.PackageDataEncode.password);
-            
-        }
 
-        int len = PackageDataBuffer.length;
+		byte[] PackageDataBuffer = concat(this.PackageDataChkHead, inRealData);
+		if (!Config.mSettingConfig.PackageDataEncode.type.equals("")) {
 
-        PackageDataBuffer = concat(this.PackageHead,PackageDataBuffer);
+			PackageDataBuffer = TunnelUtils.encode(PackageDataBuffer, Config.mSettingConfig.PackageDataEncode.type,
+					Config.mSettingConfig.PackageDataEncode.password);
 
-        if(this.PackageDiffMode.equals("PackageSize")){            
-        	PackageDataBuffer = writeInt32BE(PackageDataBuffer , len,this.PackageSizeStarPos);  
-        }else if(this.PackageDiffMode.equals("PackageSizeLE")){
-            PackageDataBuffer = writeInt32LE(PackageDataBuffer , len,this.PackageSizeStarPos);
-        }
-        return PackageDataBuffer;
+		}
+
+		int len = PackageDataBuffer.length;
+
+		PackageDataBuffer = concat(this.PackageHead, PackageDataBuffer);
+
+		if (this.PackageDiffMode.equals("PackageSize")) {
+			PackageDataBuffer = writeInt32BE(PackageDataBuffer, len, this.PackageSizeStarPos);
+		} else if (this.PackageDiffMode.equals("PackageSizeLE")) {
+			PackageDataBuffer = writeInt32LE(PackageDataBuffer, len, this.PackageSizeStarPos);
+		}
+		return PackageDataBuffer;
 
 	}
-	
-	
 
 	public void setHandler(EventHandler iEventHandler) {
 		this.iEventHandler = iEventHandler;
 
 	}
-	
-	
-	
-	
-	//--------------------------------------------
+
+	// --------------------------------------------
 	// Byte Array 操作
-	//--------------------------------------------
+	// --------------------------------------------
 	public static byte[] concat(byte[] a, byte[] b) {
-		if (a == null) a = new byte[0];
+		if (a == null)
+			a = new byte[0];
 
 		byte[] c = new byte[a.length + b.length];
 		System.arraycopy(a, 0, c, 0, a.length);
@@ -222,79 +232,78 @@ public class CustomPackage {
 		System.arraycopy(src, begin, bs, 0, count);
 		return bs;
 	}
-	
-	public static byte[] writeInt32BE(byte[] src,int num,int pos){
-		byte[] target = intToBytes4(num,true);
-		return replace(target,src,pos);
+
+	public static byte[] writeInt32BE(byte[] src, int num, int pos) {
+		byte[] target = intToBytes4(num, true);
+		return replace(target, src, pos);
 	}
-	
-	public static byte[] writeInt32LE(byte[] src,int num,int pos){
-		byte[] target = intToBytes4(num,false);
-		return replace(target,src,pos);
+
+	public static byte[] writeInt32LE(byte[] src, int num, int pos) {
+		byte[] target = intToBytes4(num, false);
+		return replace(target, src, pos);
 	}
-	
-	public static byte[] replace(byte[] target, byte[] src,int pos) {
+
+	public static byte[] replace(byte[] target, byte[] src, int pos) {
 		System.arraycopy(target, 0, src, pos, target.length);
 		return src;
 	}
 
-	public static byte[] intToBytes8(int x,boolean isBE) {
+	public static byte[] intToBytes8(int x, boolean isBE) {
 		ByteBuffer buffer = ByteBuffer.allocate(8);
-		if(isBE)
+		if (isBE)
 			buffer.order(ByteOrder.BIG_ENDIAN);
 		else
-			buffer.order(ByteOrder.LITTLE_ENDIAN);	
-		
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
+
 		buffer.putLong(x);
 		return buffer.array();
 	}
 
-	public static long bytesToint8(byte[] bytes,boolean isBE) {
+	public static long bytesToint8(byte[] bytes, boolean isBE) {
 		ByteBuffer buffer = ByteBuffer.allocate(8);
-		if(isBE)
+		if (isBE)
 			buffer.order(ByteOrder.BIG_ENDIAN);
 		else
-			buffer.order(ByteOrder.LITTLE_ENDIAN);	
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
 
 		buffer.put(bytes, 0, bytes.length);
 		buffer.flip();// need flip
 		return buffer.getLong();
 	}
-	
-	public static byte[] intToBytes4(int x,boolean isBE) {
+
+	public static byte[] intToBytes4(int x, boolean isBE) {
 		ByteBuffer buffer = ByteBuffer.allocate(4);
-		if(isBE)
+		if (isBE)
 			buffer.order(ByteOrder.BIG_ENDIAN);
 		else
-			buffer.order(ByteOrder.LITTLE_ENDIAN);	
-		
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
+
 		buffer.putInt(x);
 		return buffer.array();
 	}
 
-	public static long bytesToint4(byte[] bytes,boolean isBE) {
+	public static long bytesToint4(byte[] bytes, boolean isBE) {
 		ByteBuffer buffer = ByteBuffer.allocate(4);
-		if(isBE)
+		if (isBE)
 			buffer.order(ByteOrder.BIG_ENDIAN);
 		else
-			buffer.order(ByteOrder.LITTLE_ENDIAN);	
+			buffer.order(ByteOrder.LITTLE_ENDIAN);
 
 		buffer.put(bytes, 0, bytes.length);
 		buffer.flip();// need flip
 		return buffer.getInt();
 	}
-	
-	public static long bytesIndexOf(byte[] src,byte[] target) {
-		
-		byte[] tmp = subBytes(src,0,target.length);
-		if(java.util.Arrays.equals(tmp, target)) {
+
+	public static long bytesIndexOf(byte[] src, byte[] target) {
+
+		byte[] tmp = subBytes(src, 0, target.length);
+		if (java.util.Arrays.equals(tmp, target)) {
 			return target.length;
-		}else {
+		} else {
 			return -1;
 		}
-//		int pos = java.util.Arrays.asList(src).indexOf(target);
-//		return pos;
+		// int pos = java.util.Arrays.asList(src).indexOf(target);
+		// return pos;
 	}
-	
 
 }

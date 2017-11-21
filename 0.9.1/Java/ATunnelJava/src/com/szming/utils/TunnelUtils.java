@@ -91,14 +91,17 @@ public class TunnelUtils {
 		String AES_CBS_PADDING = "AES/CBC/PKCS5Padding";
 		byte[] bufvi = new byte[] {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 
 	            0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10};
+		Cipher cipher;
 		try {
-			Cipher cipher = Cipher.getInstance(AES_CBS_PADDING);
+			cipher = Cipher.getInstance(AES_CBS_PADDING);
 			SecretKeySpec keySpec = new SecretKeySpec(key, ALGORITHM);
 			IvParameterSpec ivSpec = new IvParameterSpec(bufvi);
 			cipher.init(mode, keySpec, ivSpec);
 			return cipher.doFinal(message);
 		}catch(Exception e){
 			e.printStackTrace();
+		}finally{
+			cipher = null;
 		}
 		return new byte[0];
 	}
